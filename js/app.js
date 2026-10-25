@@ -4,7 +4,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'ggym.v1', REST_KEY = 'ggym.rest', APP_VERSION = 22;
+  const STORAGE_KEY = 'ggym.v1', REST_KEY = 'ggym.rest', APP_VERSION = 23;
   const DAYS_FULL = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
   const DAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
   const MONTHS = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
@@ -244,6 +244,7 @@
   const GEAR = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
   const FLAG_PL = '<svg class="flag" width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><rect width="26" height="9" fill="#fff"/><rect y="9" width="26" height="9" fill="#DC143C"/></svg>';
   const FLAG_GB = '<svg class="flag" width="26" height="18" viewBox="0 0 60 36" aria-hidden="true"><rect width="60" height="36" fill="#012169"/><path d="M0 0l60 36M60 0L0 36" stroke="#fff" stroke-width="7"/><path d="M0 0l60 36M60 0L0 36" stroke="#C8102E" stroke-width="3"/><path d="M30 0v36M0 18h60" stroke="#fff" stroke-width="11"/><path d="M30 0v36M0 18h60" stroke="#C8102E" stroke-width="6"/></svg>';
+  const GRIP = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   const PLAY = '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 3.8v12.4L16 10z" fill="currentColor"/></svg>';
 
   const $ = id => document.getElementById(id);
@@ -342,6 +343,7 @@
     animTab = false;
   }
   function renderTab() {
+    tabView.dataset.tab = tab;
     const y = tabView.scrollTop;
     ({ log: renderLog, routines: renderRoutines, progress: renderProgress })[tab]();
     tabView.scrollTop = animTab ? 0 : y;
@@ -680,7 +682,7 @@
   const routinesSorted = () => Object.values(state.routines).sort((a, b) => (a.order ?? a.created ?? 0) - (b.order ?? b.created ?? 0));
   function renderRoutines() {
     const rs = routinesSorted();
-    const rows = rs.map((r, i) => { const last = finished().find(w => w.rid === r.id), sets = r.ex.reduce((a, e) => a + (+e.n || 0), 0); return `<button class="irow" data-r="${r.id}" style="--i:${i}"><span class="ir-t"><b>${esc(r.name)}</b><small>${r.ex.length} ćw. · ${sets} serii${last ? ' · ostatnio ' + ago(last.start) : ''}</small></span>${CHEV}</button>`; }).join('');
+    const rows = rs.map((r, i) => { const last = finished().find(w => w.rid === r.id), sets = r.ex.reduce((a, e) => a + (+e.n || 0), 0); return `<button class="irow" data-r="${r.id}" style="--i:${i}"><span class="ir-t"><b>${esc(r.name)}</b><small>${r.ex.length} ćw. · ${sets} serii${last ? ' · ostatnio ' + ago(last.start) : ''}</small></span><span class="rhandle" aria-label="Przesuń plan" title="Przytrzymaj i przesuń">${GRIP}</span></button>`; }).join('');
     tabView.innerHTML = `${head('Plany', '', `<button class="hbtn" data-rnew aria-label="Nowy plan">${PLUS}</button>`)}
       ${rs.length ? `<div class="ilist${animTab ? ' enter' : ''}">${rows}</div>` : emptyCard('Brak planów', 'Dodaj pierwszy plan przyciskiem +.', '<button class="primary acc" data-rnew>Nowy plan</button>')}`;
   }
@@ -693,7 +695,7 @@
     $('lp-yes').addEventListener('click', () => { delete state.routines[id]; save(); close(); render(); toast(`Usunięto plan „${r.name}”`); });
   }
   tabView.addEventListener('pointerdown', e => {
-    const row = e.target.closest('[data-r]'); if (!row || e.button > 0) return;
+    const row = e.target.closest('[data-r]'); if (!row || e.button > 0 || e.target.closest('.rhandle')) return;
     lpFired = false; lpStart = [e.clientX, e.clientY]; clearTimeout(lpT);
     row.classList.add('pressing');
     lpT = setTimeout(() => { lpFired = true; row.classList.remove('pressing'); askDeleteRoutine(row.dataset.r); }, 550);
@@ -701,7 +703,42 @@
   tabView.addEventListener('pointermove', e => { if (lpStart && Math.hypot(e.clientX - lpStart[0], e.clientY - lpStart[1]) > 10) { clearTimeout(lpT); lpStart = null; tabView.querySelector('.pressing')?.classList.remove('pressing'); } });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => tabView.addEventListener(t, () => { clearTimeout(lpT); lpStart = null; tabView.querySelector('.pressing')?.classList.remove('pressing'); }));
   tabView.addEventListener('contextmenu', e => { const row = e.target.closest('[data-r]'); if (!row) return; e.preventDefault(); if (!lpFired) { clearTimeout(lpT); askDeleteRoutine(row.dataset.r); } });
-  function newRoutine() { const r = { id: uid('r'), name: 'Nowy plan', note: '', target: 'latest', created: Date.now(), ex: [] }; state.routines[r.id] = r; save(); pushDetail({ type: 'r', id: r.id, fresh: true }); }
+  // przesuwanie planów za uchwyt ≡: wiersz jedzie za palcem, reszta robi miejsce; kolejność zapisuje się po puszczeniu
+  let drag = null;
+  tabView.addEventListener('pointerdown', e => {
+    const h = e.target.closest('.rhandle'); if (!h || e.button > 0) return;
+    const row = h.closest('[data-r]'), list = row.parentElement;
+    e.preventDefault();
+    const rows = [...list.querySelectorAll('[data-r]')], r0 = row.getBoundingClientRect();
+    drag = { row, list, pid: e.pointerId, y0: e.clientY, h: r0.height, idx: rows.indexOf(row), cur: rows.indexOf(row), mids: rows.map(x => { const b = x.getBoundingClientRect(); return b.top + b.height / 2; }), rows };
+    row.classList.add('dragging'); list.classList.add('sorting');
+    try { h.setPointerCapture(e.pointerId); } catch (_) { }
+    navigator.vibrate?.(10);
+  });
+  tabView.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    e.preventDefault();
+    const dy = e.clientY - drag.y0, y = drag.mids[drag.idx] + dy;
+    drag.row.style.transform = `translateY(${dy}px)`;
+    const to = drag.mids.filter((m, i) => i !== drag.idx && (i > drag.idx ? m <= y : m < y)).length; // nowe miejsce = ile innych planów jest powyżej
+    if (to !== drag.cur) {
+      drag.cur = to;
+      drag.rows.forEach((x, i) => { if (x === drag.row) return; const shift = drag.idx < to ? (i > drag.idx && i <= to ? -drag.h : 0) : (i < drag.idx && i >= to ? drag.h : 0); x.style.transform = shift ? `translateY(${shift}px)` : ''; });
+    }
+  }, { passive: false });
+  const dragEnd = e => {
+    if (!drag || (e && e.pointerId !== drag.pid)) return;
+    const { rows, idx, cur, list } = drag; drag = null;
+    rows.forEach(x => { x.style.transform = ''; x.classList.remove('dragging'); }); list.classList.remove('sorting');
+    lpFired = true; setTimeout(() => { lpFired = false; }, 60); // puszczenie nie otwiera planu
+    if (cur === idx) return;
+    const ids = rows.map(x => x.dataset.r), [m] = ids.splice(idx, 1); ids.splice(cur, 0, m);
+    ids.forEach((id, i) => { if (state.routines[id]) state.routines[id].order = i; });
+    save(); render();
+  };
+  tabView.addEventListener('pointerup', dragEnd);
+  tabView.addEventListener('pointercancel', dragEnd);
+  function newRoutine() { const r = { id: uid('r'), name: 'Nowy plan', note: '', target: 'latest', created: Date.now(), order: Object.keys(state.routines).length + 1e3, ex: [] }; state.routines[r.id] = r; save(); pushDetail({ type: 'r', id: r.id, fresh: true }); }
   function routineScreen(d) {
     const r = state.routines[d.id], sets = r.ex.reduce((a, e) => a + (+e.n || 0) + (+e.w || 0), 0);
     const rows = groupsOf(r.ex).map(([i0, g]) => { const inner = g.map((e, gi) => { const i = i0 + gi, x = exOf(e); return `<button class="irow" data-rex="${i}"><span class="ir-t"><b>${esc(x.name)}</b><small>${e.w ? `${e.w} ${plural(e.w, 'rozgrzewkowa', 'rozgrzewkowe', 'rozgrzewkowych')} + ` : ''}${e.n} ${plural(e.n, 'seria', 'serie', 'serii')}</small>${e.note ? `<small class="nt">${esc(e.note)}</small>` : ''}</span>${CHEV}</button>`; }).join(''); return g.length > 1 ? `<div class="ssg in"><div class="ss-l">Superseria</div>${inner}</div>` : inner; }).join('');

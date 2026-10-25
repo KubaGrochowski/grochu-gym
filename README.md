@@ -23,7 +23,7 @@ Dolny pasek: **Treningi · Plany · Postępy**, ustawienia pod zębatką w rogu.
 
 - **Treningi:** dziennik treningów po miesiącach (data, nazwa, ćwiczenia z „3 × 100 kg”), wyszukiwarka, przycisk **+** = nowy trening (pusty albo z planu). Trwający trening można zwinąć — pasek „Wróć” nad zakładkami.
 - **Ekran treningu:** ⌄ (zwiń), **Zakończ**, ⏰ timer i ⋯, pod nimi czas trwania. Serie **Kg / Powt. / Notatka**; szare liczby to wynik z ostatniego razu (dotknięcie numeru serii wpisuje go), wpisanie samych powtórzeń uzupełnia ciężar, „Dodaj serię” przenosi ciężar z poprzedniej. ⋯ przy serii: rozgrzewkowa, drop set, do upadku, usuń. Superserie (A1, B1…). Po wpisaniu serii od dołu wysuwa się „Przerwa?” — „Tak” włącza czas z ustawień (1:00 / 2:00 / 3:00). Po zakończeniu: czas i rekordy („stary wynik › dziś nowy”).
-- **Plany:** lista planów (przytrzymanie = usuń), ekran planu z przyciskiem **Start!**.
+- **Plany:** lista planów (≡ = przesuń, przytrzymanie = usuń), ekran planu z przyciskiem **Start!**.
 - **Ćwiczenia:** 876 ćwiczeń z [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (domena publiczna), nazwy po polsku albo angielsku (flaga w ustawieniach), filtr mięśni, własne ćwiczenia. Ekran ćwiczenia: mapa mięśni, Historia, Wykres, Rekordy, Opis.
 - **Postępy:** cel tygodnia (dotknięcie = zmiana celu), kalendarz, mapa mięśni z 8 tygodni.
 - **Ustawienia:** język nazw ćwiczeń (🇵🇱 / 🇬🇧), kg/lb, przerwa, pytanie o przerwę, konto.
