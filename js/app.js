@@ -4,7 +4,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'ggym.v1', REST_KEY = 'ggym.rest', APP_VERSION = 19;
+  const STORAGE_KEY = 'ggym.v1', REST_KEY = 'ggym.rest', APP_VERSION = 20;
   const DAYS_FULL = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
   const DAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
   const MONTHS = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
@@ -43,23 +43,6 @@
   // własne ćwiczenia z poprzedniej wersji miały jedną „partię” → mięśnie główne
   const OLD_GROUP = { chest: ['chest'], back: ['middle back', 'lats'], shoulders: ['shoulders'], biceps: ['biceps'], triceps: ['triceps'], legs: ['quadriceps'], glutes: ['glutes'], calves: ['calves'], abs: ['abdominals'], forearms: ['forearms'], full: [], cardio: [] };
   const IMG_BASE = 'https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/';
-
-  // Gotowe plany: [ćwiczenie, serie rozgrzewkowe, serie robocze, notatka]
-  const TEMPLATES = [
-    { id: 'ppl', name: 'Push / Pull / Legs', desc: '3 treningi: klatka-barki-triceps, plecy-biceps, nogi', rs: [
-      ['Push', [['bench', 2, 3, '6–8 powt.'], ['ohp', 1, 3, '8 powt.'], ['incdb', 0, 3, '10 powt.'], ['latraise', 0, 3, '12–15 powt.'], ['pushdown', 0, 3, '12 powt.']]],
-      ['Pull', [['deadlift', 2, 3, '5 powt.'], ['pullup', 0, 3, '8 powt.'], ['bbrow', 1, 3, '8 powt.'], ['facepull', 0, 3, '15 powt.'], ['curl', 0, 3, '10 powt.'], ['hammer', 0, 2, '12 powt.']]],
-      ['Legs', [['squat', 2, 3, '6–8 powt.'], ['rdl', 1, 3, '8 powt.'], ['legpress', 0, 3, '10 powt.'], ['legcurl', 0, 3, '12 powt.'], ['calfstand', 0, 4, '12–15 powt.']]]] },
-    { id: 'ul', name: 'Góra / Dół', desc: '2 treningi, każdy 2× w tygodniu', rs: [
-      ['Góra', [['bench', 2, 4, '6 powt.'], ['bbrow', 1, 4, '8 powt.'], ['ohp', 1, 3, '8 powt.'], ['latpull', 0, 3, '10 powt.'], ['curl', 0, 2, '12 powt.'], ['pushdown', 0, 2, '12 powt.']]],
-      ['Dół', [['squat', 2, 4, '6 powt.'], ['rdl', 1, 3, '8 powt.'], ['legpress', 0, 3, '10 powt.'], ['legcurl', 0, 3, '12 powt.'], ['calfstand', 0, 4, '15 powt.'], ['plank', 0, 3, '45 s']]]] },
-    { id: 'fbw', name: 'FBW (całe ciało)', desc: 'treningi A i B na przemian, 3× w tygodniu', rs: [
-      ['FBW A', [['squat', 2, 3, '8 powt.'], ['bench', 1, 3, '8 powt.'], ['bbrow', 0, 3, '8 powt.'], ['ohp', 0, 2, '10 powt.'], ['plank', 0, 3, '45 s']]],
-      ['FBW B', [['deadlift', 2, 3, '5 powt.'], ['incdb', 0, 3, '10 powt.'], ['pullup', 0, 3, '8 powt.'], ['lunge', 0, 3, '10 powt.'], ['curl', 0, 2, '12 powt.']]]] },
-    { id: '5x5', name: '5×5 (siła)', desc: 'treningi A i B, ciężar rośnie co trening', rs: [
-      ['5×5 A', [['squat', 2, 5, '5 powt.'], ['bench', 2, 5, '5 powt.'], ['bbrow', 1, 5, '5 powt.']]],
-      ['5×5 B', [['squat', 2, 5, '5 powt.'], ['ohp', 2, 5, '5 powt.'], ['deadlift', 2, 1, '5 powt.']]]] },
-  ];
 
   /* ---------- daty ---------- */
   const pad = n => String(n).padStart(2, '0');
@@ -483,9 +466,8 @@
   function openStart() {
     const rs = routinesSorted();
     overlay.innerHTML = sheet('Nowy trening', '', `<button class="emptyw" id="st-empty"><span class="pl">${PLUS}</span><span><b>Pusty trening</b><small>dodawaj ćwiczenia na bieżąco</small></span></button>
-      ${rs.length ? `<div class="grp"><h3>Z planu</h3></div><div class="ilist">${rs.map(r => { const last = finished().find(w => w.rid === r.id); return `<button class="irow" data-st-r="${r.id}"><span class="ir-t"><b>${esc(r.name)}</b><small>${r.ex.length} ćw.${last ? ' · ostatnio ' + ago(last.start) : ''}</small></span><span class="go-pill">${PLAY}</span></button>`; }).join('')}</div>` : `<button class="linkish" id="st-tpl">Gotowe plany: Push/Pull/Legs, Góra/Dół, FBW, 5×5</button>`}`, 'Nowy trening');
+      ${rs.length ? `<div class="grp"><h3>Z planu</h3></div><div class="ilist">${rs.map(r => { const last = finished().find(w => w.rid === r.id); return `<button class="irow" data-st-r="${r.id}"><span class="ir-t"><b>${esc(r.name)}</b><small>${r.ex.length} ćw.${last ? ' · ostatnio ' + ago(last.start) : ''}</small></span><span class="go-pill">${PLAY}</span></button>`; }).join('')}</div>` : ''}`, 'Nowy trening');
     $('st-empty').addEventListener('click', () => startWorkout());
-    $('st-tpl')?.addEventListener('click', openTemplates);
     overlay.querySelectorAll('[data-st-r]').forEach(b => b.addEventListener('click', () => startRoutine(b.dataset.stR)));
   }
   function setMenu(xi, si) {
@@ -693,10 +675,26 @@
   function renderRoutines() {
     const rs = routinesSorted();
     const rows = rs.map((r, i) => { const last = finished().find(w => w.rid === r.id), sets = r.ex.reduce((a, e) => a + (+e.n || 0), 0); return `<button class="irow" data-r="${r.id}" style="--i:${i}"><span class="ir-t"><b>${esc(r.name)}</b><small>${r.ex.length} ćw. · ${sets} serii${last ? ' · ostatnio ' + ago(last.start) : ''}</small></span>${CHEV}</button>`; }).join('');
-    tabView.innerHTML = `${head('Plany', 'Ułóż trening raz — startuj jednym dotknięciem', `<button class="hbtn" data-rnew aria-label="Nowy plan">${PLUS}</button>`)}
-      ${rs.length ? `<div class="ilist${animTab ? ' enter' : ''}">${rows}</div>` : emptyCard('Brak planów', 'Plan to lista ćwiczeń z liczbą serii. Ciężary i powtórzenia podpowiadają się z ostatniego razu.', '<button class="primary acc" data-rnew>Nowy plan</button>')}
-      <div class="ilist"><button class="irow" data-templates><span class="ir-t"><b>Gotowe plany</b><small>Push/Pull/Legs, Góra/Dół, FBW, 5×5</small></span>${CHEV}</button></div>`;
+    tabView.innerHTML = `${head('Plany', '', `<button class="hbtn" data-rnew aria-label="Nowy plan">${PLUS}</button>`)}
+      ${rs.length ? `<div class="ilist${animTab ? ' enter' : ''}">${rows}</div>` : emptyCard('Brak planów', 'Dodaj pierwszy plan przyciskiem +.', '<button class="primary acc" data-rnew>Nowy plan</button>')}`;
   }
+  // przytrzymanie wiersza planu (ok. pół sekundy) pyta o usunięcie
+  let lpT = null, lpStart = null, lpFired = false;
+  function askDeleteRoutine(id) {
+    const r = state.routines[id]; if (!r) return;
+    navigator.vibrate?.(20);
+    overlay.innerHTML = sheet('Usunąć plan?', esc(r.name), `<p class="hint">Treningi zrobione z tego planu zostaną w historii.</p><div class="confirm"><button data-close>Anuluj</button><button class="yes" id="lp-yes">Usuń</button></div>`, 'Usuń plan');
+    $('lp-yes').addEventListener('click', () => { delete state.routines[id]; save(); close(); render(); toast(`Usunięto plan „${r.name}”`); });
+  }
+  tabView.addEventListener('pointerdown', e => {
+    const row = e.target.closest('[data-r]'); if (!row || e.button > 0) return;
+    lpFired = false; lpStart = [e.clientX, e.clientY]; clearTimeout(lpT);
+    row.classList.add('pressing');
+    lpT = setTimeout(() => { lpFired = true; row.classList.remove('pressing'); askDeleteRoutine(row.dataset.r); }, 550);
+  });
+  tabView.addEventListener('pointermove', e => { if (lpStart && Math.hypot(e.clientX - lpStart[0], e.clientY - lpStart[1]) > 10) { clearTimeout(lpT); lpStart = null; tabView.querySelector('.pressing')?.classList.remove('pressing'); } });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => tabView.addEventListener(t, () => { clearTimeout(lpT); lpStart = null; tabView.querySelector('.pressing')?.classList.remove('pressing'); }));
+  tabView.addEventListener('contextmenu', e => { const row = e.target.closest('[data-r]'); if (!row) return; e.preventDefault(); if (!lpFired) { clearTimeout(lpT); askDeleteRoutine(row.dataset.r); } });
   function newRoutine() { const r = { id: uid('r'), name: 'Nowy plan', note: '', target: 'latest', created: Date.now(), ex: [] }; state.routines[r.id] = r; save(); pushDetail({ type: 'r', id: r.id, fresh: true }); }
   function routineScreen(d) {
     const r = state.routines[d.id], sets = r.ex.reduce((a, e) => a + (+e.n || 0) + (+e.w || 0), 0);
@@ -748,16 +746,6 @@
       $('rd-yes').addEventListener('click', () => { delete state.routines[id]; save(); close(); stack = stack.filter(z => !(z.type === 'r' && z.id === id)); render(); toast('Plan usunięty'); });
     });
   }
-  function openTemplates() {
-    overlay.innerHTML = sheet('Gotowe plany', 'Klasyczne podziały — możesz je potem zmieniać', `<div class="tpls">${TEMPLATES.map(t => `<div class="tpl"><div><b>${t.name}</b><small>${t.desc}</small><p>${t.rs.map(r => r[0]).join(' · ')}</p></div><button class="allweek" data-tpl="${t.id}">${PLUS}<span>Dodaj</span></button></div>`).join('')}</div>`, 'Gotowe plany');
-    overlay.querySelectorAll('[data-tpl]').forEach(b => b.addEventListener('click', () => {
-      const t = TEMPLATES.find(x => x.id === b.dataset.tpl), base = Date.now();
-      t.rs.forEach(([name, ex], i) => { const r = { id: uid('r'), name, note: t.name, target: 'latest', created: base + i, ex: ex.map(([eid, w, n, note]) => ({ eid: canon(eid), w, n, note, sup: null })) }; state.routines[r.id] = r; });
-      save(); b.disabled = true; b.innerHTML = `<span>✓ Dodano</span>`;
-      toast(`Dodano: ${t.rs.map(r => r[0]).join(', ')}`); render();
-    }));
-  }
-
   /* ----- Ćwiczenia ----- */
   function exUse() {
     const m = new Map();
@@ -1091,7 +1079,6 @@
       <div class="grp"><h3>Dane</h3></div>
       <div class="ilist">
         <button class="irow" data-body><span class="ir-t"><b>Masa ciała</b>${bodyLast() ? `<small>ostatnio ${fmtW(bodyLast()[1])} ${U()}</small>` : ''}</span>${CHEV}</button>
-        <button class="irow" data-templates><span class="ir-t"><b>Gotowe plany</b></span>${CHEV}</button>
         <button class="irow" data-csv><span class="ir-t"><b>Eksportuj do Excela (CSV)</b><small>${finished().length} ${plural(finished().length, 'trening', 'treningi', 'treningów')}</small></span>${CHEV}</button>
       </div>
       <p class="ver">Traincker · wersja ${APP_VERSION}</p>`;
@@ -1299,9 +1286,8 @@
     if ((b = T('[data-wmenu]'))) { workoutActions(b.dataset.wmenu); return; }
     if ((b = T('[data-wprs]'))) { const w = state.workouts[b.dataset.wprs]; if (w?.prs?.length) openPRs(w); return; }
     if ((b = T('[data-repeat]'))) { const w = state.workouts[b.dataset.repeat]; if (w) startWorkout({ name: w.name, rid: w.rid, ex: w.ex.map(e => ({ eid: e.eid, sup: e.sup, note: e.note, tg: e.sets })) }); return; }
-    if ((b = T('[data-r]'))) { pushDetail({ type: 'r', id: b.dataset.r }); return; }
+    if ((b = T('[data-r]'))) { if (lpFired) { lpFired = false; return; } pushDetail({ type: 'r', id: b.dataset.r }); return; }
     if (T('[data-rnew]')) { newRoutine(); return; }
-    if (T('[data-templates]')) { openTemplates(); return; }
     if ((b = T('[data-rstart]'))) { if (!calm()) ripple(e.clientX, e.clientY, 1.6); startRoutine(b.dataset.rstart); return; }
     if ((b = T('[data-rmenu]'))) { routineMenu(b.dataset.rmenu); return; }
     if ((b = T('[data-rex]'))) { routineEx(stack[stack.length - 1].id, +b.dataset.rex); return; }

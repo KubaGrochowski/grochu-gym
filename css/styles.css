@@ -1076,3 +1076,6 @@ p.cnt{font:500 12px var(--f-mono);color:var(--ink-3);padding:0 4px 4px}
 .ra-no:hover{background:var(--surface-3);color:var(--ink)}
 /* „Przerwa?” lekko ponad środkiem ekranu */
 .restask{bottom:auto;top:calc(40vh - 27px);top:calc(40svh - 27px)}
+/* plan na liście: przytrzymanie = usuń */
+.irow[data-r]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.irow[data-r].pressing{background:color-mix(in srgb,var(--miss) 12%,var(--surface));transition:background-color .5s ease-in}
