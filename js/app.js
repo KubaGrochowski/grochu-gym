@@ -4,7 +4,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'ggym.v1', REST_KEY = 'ggym.rest', APP_VERSION = 21;
+  const STORAGE_KEY = 'ggym.v1', REST_KEY = 'ggym.rest', APP_VERSION = 22;
   const DAYS_FULL = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
   const DAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
   const MONTHS = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
@@ -342,9 +342,9 @@
     animTab = false;
   }
   function renderTab() {
-    const y = window.scrollY;
+    const y = tabView.scrollTop;
     ({ log: renderLog, routines: renderRoutines, progress: renderProgress })[tab]();
-    if (!animTab) window.scrollTo({ top: y, behavior: 'instant' });
+    tabView.scrollTop = animTab ? 0 : y;
   }
   const head = (title, _sub, right = '') => `<header class="scr-h"><div class="scr-t"><h1>${title}</h1><div class="scr-r">${right}<button class="hbtn gear" data-settings aria-label="Ustawienia">${GEAR}</button></div></div></header>`;
   const emptyCard = (title, text, btn = '') => `<div class="break-card empty-day"><div class="bk-sea" aria-hidden="true">${SEA_SVG}<i class="bk-boat">${BOAT}</i></div><div class="bk-txt"><b>${title}</b><small>${text}</small></div>${btn}</div>`;
@@ -581,7 +581,7 @@
     if (wasEdit) finished().filter(x => x.start > w.start).reverse().forEach(x => { x.prs = computePRs(x); }); // późniejsze rekordy po edycji
     save(); close(); animTab = true;
     if (wasEdit) { stack = [{ type: 'w', id: w.id }]; render(); toast('Zapisano zmiany'); return; }
-    tab = 'log'; stack = []; render(); window.scrollTo({ top: 0 });
+    tab = 'log'; stack = []; render(); tabView.scrollTop = 0;
     summary(w, before);
   }
   // poprzedni najlepszy wynik (przed tym treningiem) dla danego rodzaju rekordu
@@ -1236,12 +1236,12 @@
   }
 
   /* ---------- zdarzenia ---------- */
-  function setTab(t) { tab = t; animTab = true; stack = []; try { localStorage.setItem('ggym.tab', t); } catch (_) { } tabView.innerHTML = ''; render(); window.scrollTo({ top: 0 }); }
+  function setTab(t) { tab = t; animTab = true; stack = []; try { localStorage.setItem('ggym.tab', t); } catch (_) { } tabView.innerHTML = ''; render(); tabView.scrollTop = 0; }
   document.addEventListener('click', e => {
     if (e.target.closest('#overlay')) return;
     const T = s => e.target.closest(s); let b;
     // zakładki i główne przyciski
-    if ((b = T('#tabbar [data-tab]'))) { if (b.dataset.tab === tab && !stack.length) window.scrollTo({ top: 0, behavior: 'smooth' }); else setTab(b.dataset.tab); return; }
+    if ((b = T('#tabbar [data-tab]'))) { if (b.dataset.tab === tab && !stack.length) tabView.scrollTo({ top: 0, behavior: 'smooth' }); else setTab(b.dataset.tab); return; }
     if (T('#fab') || T('[data-start]')) { if (!calm()) ripple(e.clientX, e.clientY, 1.2); openStart(); return; }
     if ((b = T('[data-rest-yes]'))) { unlockAudio(); startRest(+b.dataset.restYes, true); hideAsk(); return; }
     if (T('[data-rest-no]')) { hideAsk(); return; }

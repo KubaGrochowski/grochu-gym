@@ -1096,3 +1096,9 @@ p.cnt{font:500 12px var(--f-mono);color:var(--ink-3);padding:0 4px 4px}
 @keyframes ask-down{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,calc(100% + 40px));opacity:0}}
 .flag{display:block;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.15)}
 .smode.lang button{height:34px;display:grid;place-items:center}
+/* strona stoi w miejscu, przewija się tylko zawartość zakładki — dolny pasek nie skacze (pasek adresu przeglądarki nie chowa się i nie wysuwa) */
+html,body{overscroll-behavior:none}
+body:not(.gate){position:fixed;inset:0;overflow:hidden;padding:0}
+body:not(.gate) #tab-view{position:fixed;left:0;right:0;top:0;bottom:calc(var(--tabh) + env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:calc(18px + env(safe-area-inset-top,0px)) 16px 96px}
+#tab-view > *{max-width:600px;margin-left:auto;margin-right:auto}
+@media (min-width:601px){body:not(.gate) #tab-view{bottom:0;padding-bottom:110px}}
