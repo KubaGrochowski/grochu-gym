@@ -1079,3 +1079,20 @@ p.cnt{font:500 12px var(--f-mono);color:var(--ink-3);padding:0 4px 4px}
 /* plan na liście: przytrzymanie = usuń */
 .irow[data-r]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .irow[data-r].pressing{background:color-mix(in srgb,var(--miss) 12%,var(--surface));transition:background-color .5s ease-in}
+/* uproszczenie: 3 zakładki, zębatka w nagłówku, flagi języka */
+.tabbar{grid-template-columns:repeat(3,1fr)}
+.scr-h{margin-top:4px}
+.scr-t{margin-top:4px}
+.hbtn.gear{color:var(--ink-2)}
+.hbtn.gear:hover{color:var(--ink)}
+.smode.lang button{padding:0 12px}
+.flag{font-size:20px;line-height:1;filter:saturate(1.1)}
+.smode.lang button:not(.on) .flag{opacity:.55}
+.wkcard{cursor:pointer}
+/* „Przerwa?” wysuwa się od dołu, na środku */
+.restask{top:auto;right:auto;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);animation:ask-up .32s var(--ease)}
+.restask.out{animation:ask-down .26s ease-in forwards}
+@keyframes ask-up{from{transform:translate(-50%,calc(100% + 40px));opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@keyframes ask-down{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,calc(100% + 40px));opacity:0}}
+.flag{display:block;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.15)}
+.smode.lang button{height:34px;display:grid;place-items:center}

@@ -4,7 +4,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'ggym.v1', REST_KEY = 'ggym.rest', APP_VERSION = 20;
+  const STORAGE_KEY = 'ggym.v1', REST_KEY = 'ggym.rest', APP_VERSION = 21;
   const DAYS_FULL = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
   const DAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
   const MONTHS = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
@@ -32,11 +32,11 @@
   const DEF_EX = {};
   DB.x.forEach(([id, name, p, sc, eq, cat, lv, me, fo, img]) => {
     const e = DB.e[eq], c = DB.c[cat], f = DB.f[fo];
-    DEF_EX[id] = { id, name, primary: p.map(i => DB.m[i]), secondary: sc.map(i => DB.m[i]), equipment: e ?? null, category: c, level: DB.l[lv], mechanic: DB.k[me] ?? null, force: f ?? null, img, kind: kindOf(id, e, c, f) };
+    DEF_EX[id] = { id, name, nameEn: name, primary: p.map(i => DB.m[i]), secondary: sc.map(i => DB.m[i]), equipment: e ?? null, category: c, level: DB.l[lv], mechanic: DB.k[me] ?? null, force: f ?? null, img, kind: kindOf(id, e, c, f) };
   });
   // dwa ćwiczenia z poprzedniej biblioteki, których nie ma w bazie
-  DEF_EX.burpee = { id: 'burpee', name: 'Burpee', primary: ['quadriceps'], secondary: ['chest', 'shoulders', 'triceps', 'abdominals', 'glutes', 'hamstrings', 'calves'], equipment: 'body only', category: 'plyometrics', level: 'beginner', mechanic: 'compound', force: 'push', img: 0, kind: 'bw' };
-  DEF_EX.run = { id: 'run', name: 'Running, Outdoor', primary: ['quadriceps'], secondary: ['calves', 'glutes', 'hamstrings'], equipment: null, category: 'cardio', level: 'beginner', mechanic: null, force: null, img: 0, kind: 'cardio' };
+  DEF_EX.burpee = { id: 'burpee', name: 'Burpee', nameEn: 'Burpee', primary: ['quadriceps'], secondary: ['chest', 'shoulders', 'triceps', 'abdominals', 'glutes', 'hamstrings', 'calves'], equipment: 'body only', category: 'plyometrics', level: 'beginner', mechanic: 'compound', force: 'push', img: 0, kind: 'bw' };
+  DEF_EX.run = { id: 'run', name: 'Running, Outdoor', nameEn: 'Running, Outdoor', primary: ['quadriceps'], secondary: ['calves', 'glutes', 'hamstrings'], equipment: null, category: 'cardio', level: 'beginner', mechanic: null, force: null, img: 0, kind: 'cardio' };
   // stare id (polska biblioteka) → id w free-exercise-db; zapisane treningi i plany są przepisywane przy wczytaniu
   const ALIAS = { bench: 'Barbell_Bench_Press_-_Medium_Grip', incbench: 'Barbell_Incline_Bench_Press_-_Medium_Grip', declbench: 'Decline_Barbell_Bench_Press', dbbench: 'Dumbbell_Bench_Press', incdb: 'Incline_Dumbbell_Press', dbfly: 'Dumbbell_Flyes', cablefly: 'Cable_Crossover', pecdeck: 'Butterfly', chestpress: 'Machine_Bench_Press', pushup: 'Pushups', dips: 'Dips_-_Chest_Version', deadlift: 'Barbell_Deadlift', pullup: 'Pullups', chinup: 'Chin-Up', bbrow: 'Bent_Over_Barbell_Row', dbrow: 'One-Arm_Dumbbell_Row', latpull: 'Wide-Grip_Lat_Pulldown', cablerow: 'Seated_Cable_Rows', tbar: 'T-Bar_Row_with_Handle', pullover: 'Straight-Arm_Dumbbell_Pullover', hyperext: 'Hyperextensions_Back_Extensions', shrug: 'Barbell_Shrug', ohp: 'Standing_Military_Press', dbpress: 'Dumbbell_Shoulder_Press', arnold: 'Arnold_Dumbbell_Press', latraise: 'Side_Lateral_Raise', frontraise: 'Front_Dumbbell_Raise', revfly: 'Reverse_Flyes', facepull: 'Face_Pull', uprow: 'Upright_Barbell_Row', cablelat: 'Cable_Seated_Lateral_Raise', curl: 'Barbell_Curl', dbcurl: 'Dumbbell_Bicep_Curl', hammer: 'Hammer_Curls', preacher: 'Preacher_Curl', cablecurl: 'Standing_Biceps_Cable_Curl', conccurl: 'Concentration_Curls', skull: 'EZ-Bar_Skullcrusher', pushdown: 'Triceps_Pushdown', cgbench: 'Close-Grip_Barbell_Bench_Press', ohext: 'Cable_Rope_Overhead_Triceps_Extension', kickback: 'Tricep_Dumbbell_Kickback', diamond: 'Push-Ups_-_Close_Triceps_Position', squat: 'Barbell_Full_Squat', frontsquat: 'Front_Barbell_Squat', legpress: 'Leg_Press', hack: 'Hack_Squat', goblet: 'Goblet_Squat', lunge: 'Dumbbell_Lunges', bulgarian: 'Split_Squat_with_Dumbbells', legext: 'Leg_Extensions', legcurl: 'Lying_Leg_Curls', rdl: 'Romanian_Deadlift', hipthrust: 'Barbell_Hip_Thrust', bridge: 'Butt_Lift_Bridge', abduct: 'Thigh_Abductor', kickcable: 'One-Legged_Cable_Kickback', calfstand: 'Standing_Calf_Raises', calfseat: 'Seated_Calf_Raise', plank: 'Plank', sideplank: 'Side_Bridge', crunch: 'Crunches', legraise: 'Hanging_Leg_Raise', cablecrunch: 'Cable_Crunch', russian: 'Russian_Twist', abwheel: 'Ab_Roller', wristcurl: 'Palms-Up_Barbell_Wrist_Curl_Over_A_Bench', farmer: 'Farmers_Walk', clean: 'Power_Clean', kbswing: 'One-Arm_Kettlebell_Swings', thruster: 'Kettlebell_Thruster', treadmill: 'Running_Treadmill', bike: 'Bicycling_Stationary', elliptical: 'Elliptical_Trainer', rower: 'Rowing_Stationary', stairs: 'Stairmaster', rope: 'Rope_Jumping' };
   const canon = id => ALIAS[id] && DEF_EX[ALIAS[id]] ? ALIAS[id] : id;
@@ -62,7 +62,7 @@
   /* ---------- stan ---------- */
   const REST_OPTS = [60, 120, 180];
   const snapRest = v => !v ? 0 : REST_OPTS.reduce((b, o) => Math.abs(o - v) <= Math.abs(b - v) ? o : b, REST_OPTS[0]);
-  const DEF_SET = { unit: 'kg', rest: 120, autoRest: true, weekGoal: 3, sound: true };
+  const DEF_SET = { lang: 'pl', unit: 'kg', rest: 120, autoRest: true, weekGoal: 3, sound: true };
   let migrated = false;
   const withDefaults = s => {
     s = s && typeof s === 'object' ? s : {};
@@ -88,6 +88,9 @@
     return withDefaults({});
   }
   let state = load();
+  // nazwy ćwiczeń z bazy po polsku albo po angielsku (Ustawienia → flaga)
+  function applyLang() { const pl = state.settings.lang !== 'en', PL = window.EXDB_PL || {}; Object.values(DEF_EX).forEach(x => { x.name = pl && PL[x.id] ? PL[x.id] : x.nameEn; }); }
+  applyLang();
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     catch (_) { toast('Nie udało się zapisać danych w przeglądarce'); return; }
@@ -96,7 +99,7 @@
   // Stan z chmury: zapis lokalny bez oznaczania go jako zmiany z tego urządzenia.
   function applyState(s) {
     const typing = document.activeElement?.closest?.('#wk-layer') && state.active && s.active && s.active.id === state.active.id;
-    state = withDefaults({ ...s });
+    state = withDefaults({ ...s }); applyLang();
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { }
     if (typing || overlay.innerHTML) return; // nie przerywamy wpisywania ani otwartego okienka
     if (!state.active) wOpen = false;
@@ -105,8 +108,8 @@
 
   // nawigacja jak w aplikacji na telefon: zakładki na dole, trening jako osobny ekran, szczegóły nakładane na wierzch
   let tab = 'log', wOpen = !!state.active, stack = [], animTab = true;
-  let hQuery = '', hLimit = 25, xQuery = '', xMus = 'all', xEq = 'all', pWeeks = 8, calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  try { const v = localStorage.getItem('ggym.tab'); if (['log', 'routines', 'exercises', 'progress', 'more'].includes(v)) tab = v; } catch (_) { }
+  let hQuery = '', hLimit = 25, pWeeks = 8, calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  try { const v = localStorage.getItem('ggym.tab'); if (['log', 'routines', 'progress'].includes(v)) tab = v; } catch (_) { }
   const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- liczby i jednostki ---------- */
@@ -238,6 +241,9 @@
   const STARS = '<svg width="11" height="11" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.8l2.5 5.3 5.8.7-4.3 4 1.1 5.7L10 14.7l-5.1 2.8L6 11.8l-4.3-4 5.8-.7z" fill="currentColor"/></svg>';
   const AGAIN = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v2.8h-2.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const STOP = '<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="5" y="5" width="12" height="12" rx="2.5" fill="currentColor"/></svg>';
+  const GEAR = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
+  const FLAG_PL = '<svg class="flag" width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><rect width="26" height="9" fill="#fff"/><rect y="9" width="26" height="9" fill="#DC143C"/></svg>';
+  const FLAG_GB = '<svg class="flag" width="26" height="18" viewBox="0 0 60 36" aria-hidden="true"><rect width="60" height="36" fill="#012169"/><path d="M0 0l60 36M60 0L0 36" stroke="#fff" stroke-width="7"/><path d="M0 0l60 36M60 0L0 36" stroke="#C8102E" stroke-width="3"/><path d="M30 0v36M0 18h60" stroke="#fff" stroke-width="11"/><path d="M30 0v36M0 18h60" stroke="#C8102E" stroke-width="6"/></svg>';
   const PLAY = '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 3.8v12.4L16 10z" fill="currentColor"/></svg>';
 
   const $ = id => document.getElementById(id);
@@ -337,10 +343,10 @@
   }
   function renderTab() {
     const y = window.scrollY;
-    ({ log: renderLog, routines: renderRoutines, exercises: renderExercises, progress: renderProgress, more: renderMore })[tab]();
+    ({ log: renderLog, routines: renderRoutines, progress: renderProgress })[tab]();
     if (!animTab) window.scrollTo({ top: y, behavior: 'instant' });
   }
-  const head = (title, sub, right = '') => `<header class="scr-h"><div class="brandrow"><img class="brand" src="icons/icon-192.png" alt="" width="22" height="22"><div class="eyebrow">Traincker</div></div><div class="scr-t"><div><h1>${title}</h1>${sub ? `<p class="scr-sub">${sub}</p>` : ''}</div><div class="scr-r">${right}</div></div></header>`;
+  const head = (title, _sub, right = '') => `<header class="scr-h"><div class="scr-t"><h1>${title}</h1><div class="scr-r">${right}<button class="hbtn gear" data-settings aria-label="Ustawienia">${GEAR}</button></div></div></header>`;
   const emptyCard = (title, text, btn = '') => `<div class="break-card empty-day"><div class="bk-sea" aria-hidden="true">${SEA_SVG}<i class="bk-boat">${BOAT}</i></div><div class="bk-txt"><b>${title}</b><small>${text}</small></div>${btn}</div>`;
   function renderLive() {
     const a = state.active, lb = $('livebar');
@@ -390,7 +396,7 @@
   }
   function exCard(group, idx0) {
     const a = state.active;
-    const foot = e => `<div class="cfoot"><button class="adds" data-addset="${idx0}">${PLUSC}<span>Dodaj serię</span></button><span class="cic"><button data-exnote="${idx0}" aria-label="Notatka do ćwiczenia" class="${a.ex[idx0].note ? 'on' : ''}">${NOTE}</button><button data-exinfo="${e.eid}" data-xt="chart" aria-label="Historia i wykres">${BARS}</button><button data-exinfo="${e.eid}" data-xt="rec" aria-label="Rekordy">${STAR}</button></span></div>`;
+    const foot = () => `<div class="cfoot"><button class="adds" data-addset="${idx0}">${PLUSC}<span>Dodaj serię</span></button></div>`;
     if (group.length === 1) {
       const e = group[0], x = exOf(e);
       return `<article class="exc" data-x="${idx0}" style="--i:${idx0}"><header><button class="exn" data-exinfo="${e.eid}"><b>${esc(x.name)}</b>${e.note ? `<small>${esc(e.note)}</small>` : ''}</button><button class="sm acc" data-exmenu="${idx0}" aria-label="Opcje ćwiczenia">${DOTS}</button></header><div class="sets">${e.sets.map((s, si) => setRow(e, idx0, si, setLabel(e.sets, si))).join('')}</div>${foot(e)}</article>`;
@@ -623,7 +629,7 @@
     if (d.type === 'w' && !state.workouts[d.id]) { stack.pop(); return render(); }
     if (d.type === 'r' && !state.routines[d.id]) { stack.pop(); return render(); }
     const sy = dtLayer.scrollTop;
-    dtLayer.innerHTML = d.type === 'w' ? workoutScreen(d) : d.type === 'r' ? routineScreen(d) : d.type === 'ex' ? exerciseScreen(d) : '';
+    dtLayer.innerHTML = d.type === 'w' ? workoutScreen(d) : d.type === 'r' ? routineScreen(d) : d.type === 'ex' ? exerciseScreen(d) : d.type === 'settings' ? settingsScreen() : '';
     dtLayer.scrollTop = sy;
     if (d.type === 'ex') bindChart(d);
     if (d.fresh) { delete d.fresh; const n = dtLayer.querySelector('[data-rname]'); if (n && matchMedia('(hover: hover)').matches) { n.focus(); n.select(); } }
@@ -759,7 +765,7 @@
   const eqOk = (x, eq) => eq === 'all' || (eq.startsWith('cat:') ? x.category === eq.slice(4) : x.equipment === eq);
   function exFiltered(q, mus, eq = 'all') {
     const words = norm(q.trim()).split(/\s+/).filter(Boolean);
-    return allEx().filter(x => (mus === 'all' || (x.primary || []).includes(mus)) && eqOk(x, eq) && (!words.length || words.every(w => norm(x.name).includes(w) || norm(musList(x.primary)).includes(w) || norm(EQUIP_PL[x.equipment] || '').includes(w))));
+    return allEx().filter(x => (mus === 'all' || (x.primary || []).includes(mus)) && eqOk(x, eq) && (!words.length || words.every(w => norm(x.name).includes(w) || norm(x.nameEn || '').includes(w) || norm(musList(x.primary)).includes(w) || norm(EQUIP_PL[x.equipment] || '').includes(w))));
   }
   function exListHtml(list, use, opts = {}) {
     let i = 0, html = '';
@@ -774,12 +780,6 @@
   }
   const musChips = (cur, attr) => `<div class="mchips"><button class="${cur === 'all' ? 'on' : ''}" ${attr}="all">Wszystkie mięśnie</button>${MUSCLES.map(([m, n]) => `<button class="${cur === m ? 'on' : ''}" ${attr}="${m}">${n}</button>`).join('')}</div>`;
   const eqChips = (cur, attr) => `<div class="mchips eq">${EQ_FILTERS.map(([v, n]) => `<button class="${cur === v ? 'on' : ''}" ${attr}="${v}">${n}</button>`).join('')}</div>`;
-  function renderExercises() {
-    if (!tabView.querySelector('#x-q')) tabView.innerHTML = `${head('Ćwiczenia', `${allEx().length} ćwiczeń · baza free-exercise-db`, `<button class="hbtn" data-xnew aria-label="Nowe ćwiczenie">${PLUS}</button>`)}<label class="hsearch">${SEARCH}<input id="x-q" type="search" placeholder="Szukaj ćwiczenia" autocomplete="off"></label><div id="x-mus"></div><div id="x-list"></div>`;
-    $('x-mus').innerHTML = musChips(xMus, 'data-xmus') + eqChips(xEq, 'data-xeq');
-    const list = exFiltered(xQuery, xMus, xEq);
-    $('x-list').innerHTML = `<p class="cnt">${list.length} ${plural(list.length, 'ćwiczenie', 'ćwiczenia', 'ćwiczeń')}</p>` + exListHtml(list, exUse(), { grouped: !xQuery.trim() && xMus === 'all' && xEq === 'all' });
-  }
   // wybór ćwiczeń: do treningu, do planu albo zamiana (przełącznik „Superseria” nad listą jak w RepCount)
   let pick = null;
   function openPicker(mode, cb) {
@@ -808,7 +808,7 @@
       <label class="hsearch">${SEARCH}<input id="p-q" type="search" placeholder="Szukaj" value="${esc(p.q)}" autocomplete="off"></label>
       <div class="ilist"><button class="irow addrow" id="p-new">${PLUSC}<span class="ir-t"><b>Nowe własne ćwiczenie</b></span></button></div>
       ${p.mode === 'swap' ? '' : `<label class="switch"><span>Superseria</span><input type="checkbox" id="p-ss" ${p.ss ? 'checked' : ''}><i></i></label>`}
-      <div id="p-mus">${musChips(p.mus, 'data-pmus')}${eqChips(p.eq, 'data-peq')}</div>
+      <div id="p-mus">${musChips(p.mus, 'data-pmus')}</div>
       <div class="plist" id="p-list"></div>
       ${p.mode === 'swap' ? '' : '<div class="pfoot" id="p-foot"></div>'}`, 'Wybór ćwiczeń', 'tall picker');
     drawPickList();
@@ -1008,41 +1008,28 @@
   let prevRing = null;
   function renderProgress() {
     const g = state.settings.weekGoal, ws0 = weekStart(new Date()), t = todayKey();
-    const weeks = []; for (let i = pWeeks - 1; i >= 0; i--) { const a = addDays(ws0, -i * 7), b = addDays(a, 7), list = finished().filter(w => w.start >= a.getTime() && w.start < b.getTime()); weeks.push({ a, list, vol: list.reduce((x, w) => x + wStats(w).vol, 0) }); }
-    const m = pWeeks > 8, span = spanWorkouts(), wk = weekWorkouts(0).length, p = g ? wk / g : 0, lv = waterLevel(Math.min(1, p));
-    const lbl = wk2 => m ? (wk2.a.getDate() <= 7 ? MON_S[wk2.a.getMonth()] : '') : `${wk2.a.getDate()}.${pad(wk2.a.getMonth() + 1)}`;
-    const maxN = Math.max(g * 1.25, ...weeks.map(w => w.list.length)) || 1, maxV = Math.max(...weeks.map(w => w.vol)) || 1;
-    const barsN = weeks.map((w, j) => { const n = w.list.length; return `<div class="sb ${!n ? 'empty' : n >= g ? 'hit' : 'low'}" style="--j:${j}" title="tydzień od ${shortDate(w.a)}: ${n}"><span>${n || ''}</span><i style="height:${n / maxN * 100}%"></i></div>`; }).join('');
-    const barsV = weeks.map((w, j) => `<div class="sb ${w.vol ? 'hit' : 'empty'}" style="--j:${j}" title="tydzień od ${shortDate(w.a)}: ${fmtVol(w.vol)} ${U()}"><span>${w.vol ? fmtK(w.vol * uf()) : ''}</span><i style="height:${w.vol / maxV * 100}%"></i></div>`).join('');
-    const days = weeks.map(lbl).map((l, i) => `<span class="${i === weeks.length - 1 ? 't' : ''}">${l}</span>`).join('');
-    const durs = span.map(w => w.end - w.start), avgDur = durs.length ? durs.reduce((a, b) => a + b, 0) / durs.length : 0, hit = weeks.filter(w => w.list.length >= g).length;
+    const span = spanWorkouts(), wk = weekWorkouts(0).length, p = g ? wk / g : 0, lv = waterLevel(Math.min(1, p));
+    // mapa mięśni z ostatnich 8 tygodni: główny mięsień 1 seria, pomocniczy ½
     const mus = new Map(); span.forEach(w => w.ex.forEach(e => { const x = exOf(e); if (x.kind === 'cardio') return; const n = work(e.sets).length; (x.primary || []).forEach(m => mus.set(m, (mus.get(m) || 0) + n)); (x.secondary || []).forEach(m => mus.set(m, (mus.get(m) || 0) + n / 2)); }));
     const musL = [...mus.entries()].sort((a, b) => b[1] - a[1]), musMax = musL[0]?.[1] || 1;
     const heat = Object.fromEntries(musL.map(([m, n]) => [m, .18 + .82 * n / musMax]));
-    const prs = span.flatMap(w => (w.prs || []).map(q => ({ ...q, at: w.start, wid: w.id }))).sort((a, b) => b.at - a.at);
-    const body = Object.entries(state.body).filter(([, v]) => v).sort((a, b) => a[0].localeCompare(b[0]));
-    const bspan = body.filter(([k]) => fromKey(k).getTime() >= spanStart()), bpts = (bspan.length > 1 ? bspan : body.slice(-12)).map(([k, v]) => ({ x: fromKey(k).getTime(), y: v * uf() }));
     const strip = DAYS.map((dn, i) => { const d = addDays(ws0, i), k = key(d), n = finished().filter(w => key(new Date(w.start)) === k).length; return `<span class="wd${n ? ' on' : ''}${k === t ? ' t' : ''}${k > t ? ' fut' : ''}"><i>${n ? '✓' : ''}</i><small>${dn}</small></span>`; }).join('');
-    tabView.innerHTML = `${head('Postępy', `${span.length} ${plural(span.length, 'trening', 'treningi', 'treningów')} · średnio <b>${nf(span.length / pWeeks, 1)}</b> / tydz.`)}
-      <div class="smode s3 pw"><button data-pw="8" class="${pWeeks === 8 ? 'on' : ''}">8 tyg.</button><button data-pw="26" class="${pWeeks === 26 ? 'on' : ''}">6 mies.</button><button data-pw="52" class="${pWeeks === 52 ? 'on' : ''}">Rok</button></div>
+    tabView.innerHTML = `${head('Postępy')}
       <div class="sgrid">
-        <section class="scard${animTab ? ' enter' : ''} wkcard" style="--i:0"><div class="ring${p >= 1 ? ' full' : ''}" style="--lv:${lv}"><i class="wv"></i><i class="wv b"></i><div class="ring-t"><small>ten tydzień</small><b>${wk}</b><small>z ${g} treningów</small></div></div><div class="wkr"><h3>Cel tygodnia</h3><small>${p >= 1 ? 'osiągnięty — tak trzymaj' : `jeszcze ${g - wk} ${plural(g - wk, 'trening', 'treningi', 'treningów')}`}</small><div class="schips"><span class="schip rec">Seria: ${weekStreak()} tyg.</span></div></div><div class="wstrip">${strip}</div></section>
-        <section class="scard${animTab ? ' enter' : ''}" style="--i:1"><header><div><h3>Treningi w tygodniu</h3><small>w celu ${hit}/${pWeeks} tyg.</small></div><strong class="${hit >= pWeeks * .7 ? 'good' : hit >= pWeeks * .4 ? 'mid' : 'bad'}">${nf(span.length / pWeeks, 1)}</strong></header>
-          <div class="sbars${m ? ' m' : ''}" style="--n:${pWeeks}">${barsN}<div class="starget" style="bottom:${g / maxN * 100}%"><span>${g}</span></div></div><div class="sdays${m ? ' m' : ''}" style="--n:${pWeeks}">${days}</div>
-          <div class="schips"><span class="schip">Średnio ${fmtDur(avgDur)}</span><span class="schip">Łącznie ${nf(durs.reduce((a, b) => a + b, 0) / 36e5, 1)} h</span></div></section>
-        <section class="scard${animTab ? ' enter' : ''}" style="--i:2"><header><div><h3>Objętość</h3><small>ciężar × powtórzenia, tygodniowo</small></div><strong class="good">${fmtK(span.reduce((a, w) => a + wStats(w).vol, 0) * uf())}<small style="display:inline;font-size:12px"> ${U()}</small></strong></header>
-          <div class="sbars${m ? ' m' : ''}" style="--n:${pWeeks}">${barsV}</div><div class="sdays${m ? ' m' : ''}" style="--n:${pWeeks}">${days}</div></section>
-        <section class="scard${animTab ? ' enter' : ''}" style="--i:3">${calendarHtml()}</section>
-        <section class="scard${animTab ? ' enter' : ''}" style="--i:4"><header><div><h3>Masa ciała</h3><small>${body.length ? `ostatnio <b>${fmtW(body[body.length - 1][1])} ${U()}</b> · ${shortDate(fromKey(body[body.length - 1][0]).getTime())}` : 'zapisuj wagę, żeby widzieć trend'}</small></div></header>
-          ${body.length ? `<div class="chart-box">${chart(bpts, v => nf(v, 1), { h: 150 })}</div>` : ''}<button class="allweek" data-body>${PLUS} Dodaj pomiar</button></section>
-        <section class="scard${animTab ? ' enter' : ''}" style="--i:5"><header><div><h3>Partie mięśni</h3><small>serie robocze: mięsień główny 1, pomocniczy ½</small></div></header>
-          ${musL.length ? `<div class="mm heatmap">${bodyMap([], [], heat)}</div><div class="macros">${musL.map(([mm, n]) => `<div class="mac"><span><i></i>${muscleName(mm)}</span><b><em>${nf(n, 1)}</em> serii</b><div class="tube"><i style="width:${n / musMax * 100}%"></i></div></div>`).join('')}</div>` : '<p class="empty" style="padding:16px">Brak treningów w tym okresie</p>'}</section>
-        <section class="scard${animTab ? ' enter' : ''}" style="--i:6"><header><div><h3>Rekordy</h3><small>pobite w okresie</small></div><strong class="${prs.length ? 'good' : ''}">${prs.length}</strong></header>
-          ${prs.length ? `<div class="ilist flat">${prs.slice(0, 10).map(q => `<button class="irow" data-w="${q.wid}"><span class="prs">${STAR}</span><span class="ir-t"><b>${esc(exAny(q.eid).name)}</b><small>${PR_NAME[q.t]} · ${shortDate(q.at)}</small></span><span class="ir-v">${prLabel(q)}</span></button>`).join('')}</div>` : '<p class="empty" style="padding:16px">Rekordy pojawią się, gdy pobijesz poprzednie wyniki</p>'}</section>
+        <section class="scard${animTab ? ' enter' : ''} wkcard" style="--i:0" data-goal role="button" tabindex="0" aria-label="Zmień cel tygodnia"><div class="ring${p >= 1 ? ' full' : ''}" style="--lv:${lv}"><i class="wv"></i><i class="wv b"></i><div class="ring-t"><small>ten tydzień</small><b>${wk}</b><small>z ${g} treningów</small></div></div><div class="wkr"><h3>Cel tygodnia</h3><small>${p >= 1 ? 'osiągnięty — tak trzymaj' : `jeszcze ${g - wk} ${plural(g - wk, 'trening', 'treningi', 'treningów')}`}</small><div class="schips"><span class="schip rec">Seria: ${weekStreak()} tyg.</span></div></div><div class="wstrip">${strip}</div></section>
+        <section class="scard${animTab ? ' enter' : ''}" style="--i:1">${calendarHtml()}</section>
+        <section class="scard${animTab ? ' enter' : ''}" style="--i:2"><header><div><h3>Mięśnie</h3><small>ostatnie 8 tygodni</small></div></header>
+          ${musL.length ? `<div class="mm heatmap">${bodyMap([], [], heat)}</div>` : '<p class="empty" style="padding:16px">Brak treningów w tym okresie</p>'}</section>
       </div>`;
     const ringEl = tabView.querySelector('.ring');
     if (ringEl && !calm() && prevRing !== lv) { const top = l => `calc(4% + ${(100 - l) * .96}%)`, from = prevRing ?? 0; ringEl.querySelectorAll('.wv').forEach(w => w.animate({ top: [top(from), top(lv)] }, { duration: 1300, easing: 'cubic-bezier(.3,.7,.3,1)' })); }
     prevRing = lv;
+  }
+  function openGoal() {
+    let g = state.settings.weekGoal;
+    overlay.innerHTML = sheet('Cel tygodnia', 'Ile treningów w tygodniu', `<div class="ed-val"><button data-gd="-1" aria-label="Mniej">−</button><div class="ed-num"><b class="sv" id="g-v">${g}</b></div><button data-gd="1" aria-label="Więcej">+</button></div><button class="primary acc" id="g-save">Zapisz</button>`, 'Cel tygodnia');
+    overlay.querySelectorAll('[data-gd]').forEach(b => b.addEventListener('click', () => { g = Math.max(1, Math.min(7, g + +b.dataset.gd)); $('g-v').textContent = g; }));
+    $('g-save').addEventListener('click', () => { state.settings.weekGoal = g; save(); close(); prevRing = null; render(); });
   }
   function calendarHtml() {
     const y = calMonth.getFullYear(), mo = calMonth.getMonth(), first = new Date(y, mo, 1), n = new Date(y, mo + 1, 0).getDate(), t = todayKey();
@@ -1060,28 +1047,19 @@
     overlay.innerHTML = sheet(dateLabel(fromKey(k).getTime()), `${ws.length} treningi`, `<div class="ilist">${ws.map(w => `<button class="irow" data-w="${w.id}"><span class="ir-t"><b>${esc(w.name)}</b><small>${hhmm(w.start)} · ${fmtDur(w.end - w.start)}</small></span>${CHEV}</button>`).join('')}</div>`, 'Dzień');
   }
 
-  /* ----- Więcej (ustawienia) ----- */
-  function renderMore() {
-    const s = state.settings, perm = 'Notification' in window ? Notification.permission : 'unsupported', cs = window.Cloud?.status;
+  /* ----- Ustawienia (pod zębatką) ----- */
+  function settingsScreen() {
+    const s = state.settings, cs = window.Cloud?.status;
     const tog = (k, on) => `<label class="switch"><input type="checkbox" data-set="${k}" ${on ? 'checked' : ''}><i></i></label>`;
-    tabView.innerHTML = `${head('Więcej', '')}
-      <div class="grp"><h3>Konto</h3></div>
-      <div class="ilist"><div class="irow static"><span class="ir-t"><b>${esc(window.Cloud?.user?.email || 'Bez konta')}</b><small>${cs === 'ok' ? 'zsynchronizowano' : cs === 'syncing' ? 'synchronizacja…' : cs === 'offline' ? 'bez internetu — wyśle później' : cs === 'error' ? 'błąd synchronizacji' : ''}</small></span></div><button class="irow out" data-logout><span class="ir-t"><b>Wyloguj się</b></span></button></div>
-      <div class="grp"><h3>Trening</h3></div>
+    return `${dtBar('Ustawienia')}<div class="dt-body"><h1 class="big">Ustawienia</h1>
       <div class="ilist">
+        <div class="irow static"><span class="ir-t"><b>Nazwy ćwiczeń</b></span><span class="smode u2 lang"><button data-lang="pl" class="${s.lang !== 'en' ? 'on' : ''}" aria-label="Polski">${FLAG_PL}</button><button data-lang="en" class="${s.lang === 'en' ? 'on' : ''}" aria-label="English">${FLAG_GB}</button></span></div>
         <div class="irow static"><span class="ir-t"><b>Jednostka</b></span><span class="smode u2"><button data-unit="kg" class="${s.unit !== 'lb' ? 'on' : ''}">kg</button><button data-unit="lb" class="${s.unit === 'lb' ? 'on' : ''}">lb</button></span></div>
-        <div class="irow static"><span class="ir-t"><b>Przerwa między seriami</b><small>domyślna, można zmienić dla ćwiczenia</small></span><span class="smode u3">${REST_OPTS.map(o => `<button data-rest-set="${o}" class="${s.rest === o ? 'on' : ''}">${fmtSec(o)}</button>`).join('')}</span></div>
-        <div class="irow static"><span class="ir-t"><b>Pytaj o przerwę po serii</b><small>po wpisaniu serii z boku pojawi się „Przerwa?”</small></span>${tog('autoRest', s.autoRest)}</div>
-        <div class="irow static"><span class="ir-t"><b>Dźwięk na koniec przerwy</b></span>${tog('sound', s.sound)}</div>
-        ${perm !== 'unsupported' ? `<button class="irow" data-notif ${perm !== 'default' ? 'disabled' : ''}><span class="ir-t"><b>Powiadomienie o końcu przerwy</b><small>${perm === 'granted' ? 'włączone' : perm === 'denied' ? 'zablokowane w przeglądarce' : 'gdy aplikacja jest w tle'}</small></span>${perm === 'default' ? '<span class="ir-v acc">Włącz</span>' : ''}</button>` : ''}
-        <div class="irow static"><span class="ir-t"><b>Cel: treningów w tygodniu</b></span><span class="stp"><button data-goal-d="-1" aria-label="Mniej">−</button><b>${s.weekGoal}</b><button data-goal-d="1" aria-label="Więcej">+</button></span></div>
+        <div class="irow static"><span class="ir-t"><b>Przerwa</b></span><span class="smode u3">${REST_OPTS.map(o => `<button data-rest-set="${o}" class="${s.rest === o ? 'on' : ''}">${fmtSec(o)}</button>`).join('')}</span></div>
+        <div class="irow static"><span class="ir-t"><b>Pytaj o przerwę po serii</b></span>${tog('autoRest', s.autoRest)}</div>
       </div>
-      <div class="grp"><h3>Dane</h3></div>
-      <div class="ilist">
-        <button class="irow" data-body><span class="ir-t"><b>Masa ciała</b>${bodyLast() ? `<small>ostatnio ${fmtW(bodyLast()[1])} ${U()}</small>` : ''}</span>${CHEV}</button>
-        <button class="irow" data-csv><span class="ir-t"><b>Eksportuj do Excela (CSV)</b><small>${finished().length} ${plural(finished().length, 'trening', 'treningi', 'treningów')}</small></span>${CHEV}</button>
-      </div>
-      <p class="ver">Traincker · wersja ${APP_VERSION}</p>`;
+      <div class="ilist"><div class="irow static"><span class="ir-t"><b>${esc(window.Cloud?.user?.email || 'Bez konta')}</b><small>${cs === 'ok' ? 'zsynchronizowano' : cs === 'syncing' ? 'synchronizacja…' : cs === 'offline' ? 'bez internetu — wyśle później' : cs === 'error' ? 'błąd synchronizacji' : ''}</small></span></div><button class="irow out" data-logout><span class="ir-t"><b>Wyloguj się</b></span></button></div>
+      <p class="ver">Traincker · wersja ${APP_VERSION}</p></div>`;
   }
 
   /* ----- masa ciała ----- */
@@ -1252,7 +1230,7 @@
     overlay.innerHTML = sheet('Czy chcesz się wylogować?', state.active ? 'Trwający trening zostanie zapisany w chmurze' : '', `<div class="confirm"><button data-close>Nie</button><button class="yes" id="confirm-logout">Tak</button></div>`);
     $('confirm-logout').addEventListener('click', async () => {
       const b = $('confirm-logout'); b.disabled = true;
-      try { await window.Cloud.signOut(); close(); stopRest(); stack = []; wOpen = false; state = withDefaults({}); try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { } updateGate(); }
+      try { await window.Cloud.signOut(); close(); stopRest(); stack = []; wOpen = false; state = withDefaults({}); applyLang(); try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { } updateGate(); }
       catch (err) { close(); toast(err.message); }
     });
   }
@@ -1303,20 +1281,16 @@
     if ((b = T('[data-xr]'))) { const d = stack[stack.length - 1]; d.range = b.dataset.xr; d.sel = null; render(); return; }
     if ((b = T('[data-xy]'))) { stack[stack.length - 1].year = b.dataset.xy; render(); return; }
     if ((b = T('[data-xedit]'))) { const x = exById(b.dataset.xedit); if (x) openCustomEx(x, () => { close(); render(); }); return; }
-    if ((b = T('[data-xmus]'))) { xMus = b.dataset.xmus; renderExercises(); return; }
-    if ((b = T('[data-xeq]'))) { xEq = b.dataset.xeq; renderExercises(); return; }
-    if (T('[data-xnew]')) { openCustomEx(null); return; }
     if (T('[data-more]')) { hLimit += 25; renderLog(); return; }
-    if ((b = T('[data-pw]'))) { pWeeks = +b.dataset.pw; animTab = true; render(); return; }
+    if (T('[data-goal]')) { openGoal(); return; }
     if ((b = T('[data-cal]'))) { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + +b.dataset.cal, 1); const c = b.closest('.scard'); c.innerHTML = calendarHtml(); c.querySelector('.calg').classList.add('enter'); return; }
     if ((b = T('[data-cday]'))) { openDay(b.dataset.cday); return; }
     if (T('[data-body]')) { openBody(); return; }
+    if (T('[data-settings]')) { pushDetail({ type: 'settings' }); return; }
+    if ((b = T('[data-lang]'))) { state.settings.lang = b.dataset.lang; applyLang(); save(); render(); return; }
     // ustawienia
     if ((b = T('[data-unit]'))) { state.settings.unit = b.dataset.unit; save(); render(); return; }
     if ((b = T('[data-rest-set]'))) { state.settings.rest = +b.dataset.restSet; save(); render(); return; }
-    if ((b = T('[data-goal-d]'))) { state.settings.weekGoal = Math.max(1, Math.min(7, state.settings.weekGoal + +b.dataset.goalD)); save(); prevRing = null; render(); return; }
-    if (T('[data-notif]')) { Notification.requestPermission().then(r => { toast(r === 'granted' ? 'Powiadomienia włączone' : 'Powiadomienia nie zostały włączone'); render(); }).catch(() => { }); return; }
-    if (T('[data-csv]')) { exportCsv(); return; }
     if (T('[data-logout]')) { confirmLogout(); return; }
     const ring = T('.ring'); if (ring && !calm()) ripple(e.clientX, e.clientY, 1.4);
   });
@@ -1329,7 +1303,6 @@
   document.addEventListener('input', e => {
     const t = e.target;
     if (t.id === 'h-q') { hQuery = t.value; hLimit = 25; renderLog(); return; }
-    if (t.id === 'x-q') { xQuery = t.value; renderExercises(); return; }
     if (t.matches('[data-rname]') || t.matches('[data-rnote]')) { const r = state.routines[stack[stack.length - 1]?.id]; if (!r) return; if (t.matches('[data-rname]')) { r.name = t.value; const h = dtLayer.querySelector('h1.big'); if (h) h.textContent = t.value || 'Plan'; } else r.note = t.value; save(); return; }
     const a = state.active; if (!a || !t.closest('#wk-layer')) return;
     if (t.id === 'w-name') { a.name = t.value; save(); return; }
@@ -1357,7 +1330,7 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (rest) tickRest(); if (todayKey() !== lastToday) { lastToday = todayKey(); if (!overlay.innerHTML && !wOpen) render(); } } });
   // zegar trwającego treningu
   setInterval(() => { if (!state.active || state.active.edit || document.hidden) return; const t = elapsed(); document.querySelectorAll('[data-el]').forEach(x => { x.textContent = t; }); }, 1000);
-  window.Cloud?.onChange(() => { if (tab === 'more' && !wOpen && !stack.length && !overlay.innerHTML) renderMore(); });
+  window.Cloud?.onChange(() => { if (stack[stack.length - 1]?.type === 'settings' && !overlay.innerHTML) renderDetail(); });
 
   let tt;
   function toast(m) {
